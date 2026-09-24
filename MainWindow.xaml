@@ -10,7 +10,7 @@
         mc:Ignorable="d"
         Title="Analog Clocks" Height="450" Width="800">
     <StackPanel>
-        <custom:AnalogClock/>
+        <custom:AnalogClock ShowSeconds="False"/>
         <custom:AnalogClock/>
     </StackPanel>
 </Window>

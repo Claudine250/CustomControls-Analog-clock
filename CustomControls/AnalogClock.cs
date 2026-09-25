@@ -12,6 +12,8 @@ using System.Windows.Threading;
 
 namespace AnalogClockControl.CustomControls
 {
+    //define deligate
+    public delegate void TimeChangedEventHandler(object sender, TimeChangedEventArgs args);
     public class AnalogClock : Control
     {
         private Line hourHand;
@@ -21,6 +23,13 @@ namespace AnalogClockControl.CustomControls
         //register dependency property with analog clock to set up whether its shown or hidden, defaulted to true
         public static DependencyProperty ShowSecondsProperty = DependencyProperty.Register("ShowSeconds", typeof(bool), typeof(AnalogClock), new PropertyMetadata(true));
 
+        //routed event can be used on other elements, using Bubble strategy means any element that has the clock inside of it can handle the event.
+        //Direct routing strategy means that only the Analog clock that fires this event can handle the time changed event
+        //Tunnel routing strategy means anything that is inside of the clock can handle the timechanged event
+        public static RoutedEvent TimeChangedEvent = EventManager.RegisterRoutedEvent("TimeChanged", RoutingStrategy.Bubble, typeof(TimeChangedEventHandler), typeof(AnalogClock));
+
+        
+
         //property name should be same as name given in the registered property
         public bool ShowSeconds
         {
@@ -29,6 +38,22 @@ namespace AnalogClockControl.CustomControls
             //setting ShowProperty to the value that is passed into the setter
             set { SetValue(ShowSecondsProperty, value); }
         }
+
+        //set up event that our eventrouter wraps, name has to match our routed event name <TimeChangedEvent>, also define deligate which will be routedeventargs
+        public event TimeChangedEventHandler TimeChanged
+        {
+            // when event is subscribed to, add a handler
+            add
+            {
+                AddHandler(TimeChangedEvent, value);
+            }
+            //unsubscribing to or removing event
+            remove
+            {
+                RemoveHandler(TimeChangedEvent, value);
+            }
+        }
+
 
         //give analog clock the style to define what style to use
         static AnalogClock()
@@ -58,21 +83,30 @@ namespace AnalogClockControl.CustomControls
             //add binding to the second hand
             secondHand.SetBinding(VisibilityProperty, showSecondHandBinding);*/
 
-            UpdateHandAngles();
+            UpdateHandAngles(DateTime.Now);
 
             DispatcherTimer timer = new  DispatcherTimer();
             timer.Interval = new TimeSpan(0, 0, 1);
-            timer.Tick += (s, e) => UpdateHandAngles();
+            timer.Tick += (s, e) => OnTimeChanged(DateTime.Now);
             timer.Start();
 
             base.OnApplyTemplate();
         }
-        //update line angles to corresponde to the time
-        private void UpdateHandAngles()
+
+        //fire routedeventhandler when time changes
+        protected virtual void OnTimeChanged(DateTime time)
         {
-            hourHand.RenderTransform = new RotateTransform((DateTime.Now.Hour / 12.0) *360, 0.5, 05);
-            minuteHand.RenderTransform = new RotateTransform((DateTime.Now.Minute / 60.0) * 360, 0.5, 05);
-            secondHand.RenderTransform = new RotateTransform((DateTime.Now.Second / 60.0) * 360, 0.5, 05);
+
+            UpdateHandAngles(time);
+            RaiseEvent(new TimeChangedEventArgs(TimeChangedEvent, this) {NewTime = time });
+        }
+
+        //update line angles to corresponde to the time
+        private void UpdateHandAngles(DateTime time)
+        {
+            hourHand.RenderTransform = new RotateTransform((time.Hour / 12.0) *360, 0.5, 05);
+            minuteHand.RenderTransform = new RotateTransform((time.Minute / 60.0) * 360, 0.5, 05);
+            secondHand.RenderTransform = new RotateTransform((time.Second / 60.0) * 360, 0.5, 05);
         }
     }
 }

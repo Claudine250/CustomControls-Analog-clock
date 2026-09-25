@@ -8,6 +8,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using AnalogClockControl.CustomControls;
 
 namespace CustomControls
 {
@@ -19,6 +20,12 @@ namespace CustomControls
         public MainWindow()
         {
             InitializeComponent();
+        }
+
+        private void AnalogClock_TimeChanged(object sender, TimeChangedEventArgs e)
+        {
+            //take our textbox and set our text to event's new time
+            tbTime.Text = e.NewTime.ToString("hh:mm:ss");
         }
     }
 }

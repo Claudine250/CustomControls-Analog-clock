@@ -9,8 +9,8 @@
         
         mc:Ignorable="d"
         Title="Analog Clocks" Height="450" Width="800">
-    <StackPanel>
-        <custom:AnalogClock ShowSeconds="False"/>
-        <custom:AnalogClock/>
+    <StackPanel HorizontalAlignment="Center" custom:AnalogClock.TimeChanged="AnalogClock_TimeChanged">
+        <custom:AnalogClock ShowSeconds="True"/>
+        <TextBlock x:Name="tbTime" Text="00:00:00" Margin="10" FontSize="50"/>
     </StackPanel>
 </Window>

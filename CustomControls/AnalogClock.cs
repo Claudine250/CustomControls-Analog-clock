@@ -98,7 +98,23 @@ namespace AnalogClockControl.CustomControls
         {
 
             UpdateHandAngles(time);
+            UpdateTimeStates(time);
             RaiseEvent(new TimeChangedEventArgs(TimeChangedEvent, this) {NewTime = time });
+        }
+
+
+        //will be called everytime time changes to change our state to night time mode or daytime mode
+        private void UpdateTimeStates(DateTime time)
+        {
+            if(time.Hour > 6 && time.Hour < 18)
+            {
+                VisualStateManager.GoToState(this, "Day", false);
+            }
+            else
+            {
+                VisualStateManager.GoToState(this, "Night", false);
+            }
+            
         }
 
         //update line angles to corresponde to the time
